@@ -1,0 +1,11 @@
+---
+create_files:
+  - owner:                      'root'
+    group:                      'root'
+    mode:                       '1755'
+    state:                      'directory'
+    path:                       '/archive/backup'
+authorized_keys:
+  - user:                       'rachel'
+    keyfile:                    "{{ role_path }}/../rudolph/files/ssh_keys/rachel.id_rsa.pub"
+
