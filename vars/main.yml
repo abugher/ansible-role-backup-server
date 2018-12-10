@@ -7,5 +7,5 @@ create_files:
     path:                       '/archive/backup'
 authorized_keys:
   - user:                       'rachel'
-    keyfile:                    "{{ role_path }}/../rudolph/files/ssh_keys/rachel.id_rsa.pub"
+    keyfile:                    "{{ role_path }}/../../inventory/hosts/rudolph/users/rachel/files/ssh_keys/id_rsa.pub"
 
