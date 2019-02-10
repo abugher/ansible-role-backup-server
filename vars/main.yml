@@ -8,4 +8,5 @@ create_files:
 authorized_keys:
   - user:                       'rachel'
     keyfile:                    "{{ role_path }}/../../inventory/hosts/rudolph/users/rachel/files/ssh_keys/id_rsa.pub"
-
+allow_users:
+  - 'rachel'
