@@ -5,8 +5,6 @@ create_files:
     mode:                       '1755'
     state:                      'directory'
     path:                       '/archive/backup'
-authorized_keys:
-  - user:                       'rachel'
-    keyfile:                    "{{ role_path }}/../../inventory/hosts/rudolph/users/rachel/files/ssh_keys/id_rsa.pub"
+#authorized_keys:
 allow_users:
   - 'rachel'

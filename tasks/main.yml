@@ -1,4 +1,9 @@
 ---
 - include:              '../tasks/create_files.yml'
-- include:              '../tasks/authorized_keys.yml'
+- include:              'register_client_host.yml'
+  vars:
+    backup_client:      "{{ backup_client }}"
+  with_items:           "{{ groups['backup_client']}}"
+  loop_control:
+    loop_var:           backup_client
 - include:              '../tasks/allow_users.yml'
