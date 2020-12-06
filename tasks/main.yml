@@ -1,9 +1,12 @@
 ---
+- include_vars:         'backup_server_parameters.yml'
 - include:              '../tasks/create_files.yml'
+# "backup_client_host_loop_var" is used instead of just "backup_client_host" to
+# avoid a warning:
+#  [WARNING]: The loop variable 'backup_client_host' is already in use. 
 - include:              'register_client_host.yml'
   vars:
-    backup_client:      "{{ backup_client }}"
-  with_items:           "{{ groups['backup_client']}}"
+    backup_client_host: "{{ backup_client_host_loop_var }}"
+  with_items:           "{{ groups['backup_client_host']}}"
   loop_control:
-    loop_var:           backup_client
-- include:              '../tasks/allow_users.yml'
+    loop_var:           backup_client_host_loop_var

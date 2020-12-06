@@ -2,9 +2,6 @@
 create_files:
   - owner:                      'root'
     group:                      'root'
-    mode:                       '1755'
+    mode:                       '0751'
     state:                      'directory'
-    path:                       '/archive/backup'
-#authorized_keys:
-allow_users:
-  - 'rachel'
+    path:                       "{{ backup_prefix }}"

@@ -2,32 +2,48 @@
 - include:              '../tasks/user_groups.yml'
   vars:
     user_groups:
-      - "{{ backup_user }}-at-{{ backup_client }}"
-  with_items:           "{{ hostvars[backup_client]['backup_users'] }}"
+      - "{{ backup_client_user }}-at-{{ backup_client_host }}"
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
-    loop_var:           backup_user
-
+    loop_var:           backup_client_user
 - include:              '../tasks/users.yml'
   vars:
     users:
-      - "{{ backup_user }}-at-{{ backup_client }}"
-  with_items:           "{{ hostvars[backup_client]['backup_users'] }}"
+      - "{{ backup_client_user }}-at-{{ backup_client_host }}"
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
-    loop_var:           backup_user
-
+    loop_var:           backup_client_user
 - include:              '../tasks/authorized_keys.yml'
   vars:
     authorized_keys:
-      - user:             "{{ backup_user }}-at-{{ backup_client }}"
-        keyfile:          "{{ role_path }}/../../inventory/hosts/{{ backup_client }}/users/{{ backup_user }}/files/ssh_keys/id_rsa.pub"
-  with_items:           "{{ hostvars[backup_client]['backup_users'] }}"
+      - user:             "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        keyfile:          "{{ role_path }}/../../inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
-    loop_var:           backup_user
-
+    loop_var:           backup_client_user
 - include:              '../tasks/allow_users.yml'
   vars:
     allow_users:
-      - "{{ backup_user }}-at-{{ backup_client }}"
-  with_items:           "{{ hostvars[backup_client]['backup_users'] }}"
+      - "{{ backup_client_user }}-at-{{ backup_client_host }}"
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
-    loop_var:           backup_user
+    loop_var:           backup_client_user
+- include:              '../tasks/create_files.yml'
+  vars:
+    create_files:
+      - owner:                      'root'
+        group:                      'root'
+        mode:                       '0751'
+        state:                      'directory'
+        path:                       "{{ backup_prefix }}/{{ backup_client_host }}"
+- include:              '../tasks/create_files.yml'
+  vars:
+    create_files:
+      - owner:                      "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        group:                      "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        mode:                       '0750'
+        state:                      'directory'
+        path:                       "{{ backup_prefix }}/{{ backup_client_host }}/{{ backup_client_user }}"
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
+  loop_control:
+    loop_var:           backup_client_user
