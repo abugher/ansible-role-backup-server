@@ -7,6 +7,6 @@
 - include:              'register_client_host.yml'
   vars:
     backup_client_host: "{{ backup_client_host_loop_var }}"
-  with_items:           "{{ groups['backup_client_host']}}"
+  with_items:           "{{ groups['backup_client']}}"
   loop_control:
     loop_var:           backup_client_host_loop_var
