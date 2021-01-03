@@ -1,5 +1,4 @@
 ---
-- include_vars:         'backup_server_parameters.yml'
 - include:              '../tasks/create_files.yml'
 # "backup_client_host_loop_var" is used instead of just "backup_client_host" to
 # avoid a warning:
