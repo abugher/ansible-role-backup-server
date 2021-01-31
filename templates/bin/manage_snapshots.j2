@@ -34,7 +34,7 @@ function remove_snapshots() {
       fi
     done
   fi
-  if test "$(ls ???-?? | wc -l)" -gt "${max_months}"; then
+  if test "$(ls ????-?? | wc -l)" -gt "${max_months}"; then
     for snapshot in ????-??; do
       numeric="$(sed -E 's/[^0-9]//g' <<< "${snapshot}")"
       if test "${numeric}" -lt "${min_month}"; then
@@ -43,7 +43,7 @@ function remove_snapshots() {
       fi
     done
   fi
-  if test "$(ls ???-??-?? | wc -l)" -gt "${max_days}"; then
+  if test "$(ls ????-??-?? | wc -l)" -gt "${max_days}"; then
     for snapshot in ????-??-??; do
       numeric="$(sed -E 's/[^0-9]//g' <<< "${snapshot}")"
       if test "${numeric}" -lt "${min_day}"; then
