@@ -5,3 +5,14 @@ create_files:
     mode:                       '0751'
     state:                      'directory'
     path:                       "{{ backup_prefix }}"
+template_files:
+  - owner:                      'root'
+    group:                      'root'
+    mode:                       '0755'
+    src:                        'templates/bin/manage_snapshots.j2'
+    dest:                       '/usr/local/bin/manage_snapshots'
+  - owner:                      'root'
+    group:                      'root'
+    mode:                       '0644'
+    src:                        'files/conf/cron.d/manage_snapshots'
+    dest:                       '/etc/cron.d/manage_snapshots'

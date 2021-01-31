@@ -1,0 +1,97 @@
+#!/bin/bash
+
+
+function main() {
+  mkdir -p "${snapshots}" \
+    || fail "Failed to create snapshot directory:  '${snapshots}'"
+  cd "${snapshots}" \
+    || fail "Failed to enter snapshot directory:  '${snapshots}'"
+  create_snapshots
+  remove_snapshots
+}
+
+
+function create_snapshots() {
+  for time in "${year}"{,-"${month}"{,-"${day}"{,T"${hour}"}}}; do
+    if ! test -d "${time}"; then
+      btrfs subvolume snapshot -r "${volume}" "${time}" \
+        || fail "Failed to create snapshot:  '$(pwd)/${time}'"
+    fi
+  done
+}
+
+
+function remove_snapshots() {
+  shopt -s nullglob
+
+  # Do not delete old snapshots unless too many exist.  (Do not delete all
+  # snapshots if the clock jumps far into the future by accident.)
+  if test "$(ls ???? | wc -l)" -gt "${max_years}"; then
+    for snapshot in ????; do
+      if test "${snapshot}" -lt "${min_year}"; then
+        btrfs subvolume delete "${snapshot}" \
+          || fail "Failed to delete yearly snapshot:  '$(pwd)/${snapshot}'"
+      fi
+    done
+  fi
+  if test "$(ls ???-?? | wc -l)" -gt "${max_months}"; then
+    for snapshot in ????-??; do
+      numeric="$(sed -E 's/[^0-9]//' <<< "${snapshot}")"
+      if test "${numeric}" -lt "${min_month}"; then
+        btrfs subvolume delete "${snapshot}" \
+          || fail "Failed to delete monthly snapshot:  '$(pwd)/${snapshot}'"
+      fi
+    done
+  fi
+  if test "$(ls ???-??-?? | wc -l)" -gt "${max_days}"; then
+    for snapshot in ????-??-??; do
+      numeric="$(sed -E 's/[^0-9]//' <<< "${snapshot}")"
+      if test "${numeric}" -lt "${min_day}"; then
+        btrfs subvolume delete "${snapshot}" \
+          || fail "Failed to delete daily snapshot:  '$(pwd)/${snapshot}'"
+      fi
+    done
+  fi
+  if test "$(ls ????-??-??T?? | wc -l)"; then
+    for snapshot in ????-??-??T??; do
+      numeric="$(sed -E 's/[^0-9]//' <<< "${snapshot}")"
+      if test "${numeric}" -lt "${min_hour}"; then
+        btrfs subvolume delete "${snapshot}" \
+          || fail "Failed to delete hourly snapshot:  '$(pwd)/${snapshot}'"
+      fi
+    done
+  fi
+}
+
+
+function fail() {
+  printf '%s\n' "${1}"
+  exit "${2:-1}"
+}
+
+
+# These variables are set in host_vars.
+volume="{{ backup_prefix }}"
+snapshots="${volume}/snapshots"
+
+max_years="{{ snapshot_yearlies }}"
+max_months="{{ snapshot_monthlies }}"
+max_days="{{ snapshot_dailies }}"
+max_hours="{{ snapshot_hourlies }}"
+
+# Get the current time.
+year="$(date '+%Y')"
+month="$(date '+%m')"
+day="$(date '+%d')"
+hour="$(date '+%H')"
+
+# Skip punctuation for numeric comparison.
+# Compensate for leap years.
+min_year="$(date -d "${year} -$(( max_years - 1 ))years" '+%Y')"
+# Compensate for varying month lengths.
+min_month="$(date -d "${year}-${month}-01 -$(( max_months - 1 ))months" '+%Y%m')"
+# Do not account for DST begin and end.
+min_day="$(date -d "-$(( max_days - 1 ))days" '+%Y%m%d')"
+min_hour="$(date -d "-$(( max_hours - 1 ))hours" '+%Y%m%d%H')"
+
+main "${@}"
