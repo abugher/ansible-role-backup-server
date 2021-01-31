@@ -1,0 +1,11 @@
+#!/bin/bash
+
+log='/var/log/manage_snapshots.log'
+
+# Preserve a full record of the last run to be reflected in the snapshot(s)
+# about to be created.
+if test -e "${log}"; then
+  mv "${log}"{,.old}
+fi
+# The current log will not be complete until after the snapshots are created.
+/usr/local/bin/manage_snapshots > "${log}" 2>&1

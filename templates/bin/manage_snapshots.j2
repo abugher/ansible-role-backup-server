@@ -2,10 +2,14 @@
 
 
 function main() {
-  mkdir -p "${snapshots}" \
-    || fail "Failed to create snapshot directory:  '${snapshots}'"
-  cd "${snapshots}" \
-    || fail "Failed to enter snapshot directory:  '${snapshots}'"
+  volume="{{ backup_prefix }}"
+  snapshots_dir="${volume}/snapshots"
+
+  mkdir -p "${snapshots_dir}" \
+    || fail "Failed to create snapshot directory:  '${snapshots_dir}'"
+  cd "${snapshots_dir}" \
+    || fail "Failed to enter snapshot directory:  '${snapshots_dir}'"
+
   create_snapshots
   remove_snapshots
 }
@@ -13,9 +17,12 @@ function main() {
 
 function create_snapshots() {
   for time in "${year}"{,-"${month}"{,-"${day}"{,T"${hour}"}}}; do
-    if ! test -d "${time}"; then
+    if test -d "${time}"; then
+      inform "Snapshot already exists:  '$(pwd)/${time}'"
+    else
       btrfs subvolume snapshot -r "${volume}" "${time}" \
         || fail "Failed to create snapshot:  '$(pwd)/${time}'"
+      inform "Created snapshot:  '$(pwd)/${time}'"
     fi
   done
 }
@@ -24,74 +31,88 @@ function create_snapshots() {
 function remove_snapshots() {
   shopt -s nullglob
 
-  # Do not delete old snapshots unless too many exist.  (Do not delete all
-  # snapshots if the clock jumps far into the future by accident.)
-  if test "$(ls ???? | wc -l)" -gt "${max_years}"; then
-    for snapshot in ????; do
-      if test "${snapshot}" -lt "${min_year}"; then
+  years_target_count="{{ snapshot_yearlies }}"
+  months_target_count="{{ snapshot_monthlies }}"
+  days_target_count="{{ snapshot_dailies }}"
+  hours_target_count="{{ snapshot_hourlies }}"
+
+  # Compensate for leap years.
+  oldest_year="$(date -d "${year} -$(( years_target_count - 1 ))years" '+%Y')"
+  # Compensate for varying month lengths.
+  oldest_month="$(date -d "${year}-${month}-01 -$(( months_target_count - 1 ))months" '+%Y-%m')"
+  # Do not account for DST begin and end.
+  oldest_day="$(date -d "-$(( days_target_count - 1 ))days" '+%Y-%m-%d')"
+  oldest_hour="$(date -d "-$(( hours_target_count - 1 ))hours" '+%Y-%m-%dT%H')"
+
+  # Any file with a matching name is assumed to be a snapshot.  Keep this
+  # directory clean.
+  prune yearly "${years_target_count}" "${oldest_year}" \
+    <<< [0-9][0-9][0-9][0-9]
+  prune monthly "${months_target_count}" "${oldest_month}" \
+    <<< [0-9][0-9][0-9][0-9]-[0-9][0-9]
+  prune daily "${days_target_count}" "${oldest_day}" \
+    <<< [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
+  prune hourly "${hours_target_count}" "${oldest_hour}" \
+    <<< [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]
+}
+
+
+function prune() {
+  adjective="${1}"
+  target_count="${2}"
+  oldest_snapshot="${3}"
+  # Number of arguments may be limited.  Take the list of unknown length on stdin.
+  # This assumes newline is the only whitespace and separates entries.
+  snapshots=( $(cat) )
+  
+  oldest_snapshot_numeric="$(numeric "${oldest_snapshot}")"
+  # Don't confuse seq.  Only proceed if there are excess snapshots.
+  if test "{{ '${#snapshots[@]}' }}" -gt "${target_count}"; then
+    # Keep at least $target_count snapshots.
+    # (Don't delete all if all are old, even if there are more than $target_count.)
+    for i in $(seq "${target_count}" "$(( "{{ '${#snapshots[@]}' }}" - 1 ))"); do
+      snapshot="${snapshots[i]}"
+      snapshot_numeric="$(numeric "${snapshot}")"
+      # Keep any snapshots younger than $oldest.
+      # (Don't delete $oldest and younger even if those are more than $target_count.)
+      if test "${snapshot_numeric}" -lt "${oldest_snapshot_numeric}"; then
         btrfs subvolume delete "${snapshot}" \
-          || fail "Failed to delete yearly snapshot:  '$(pwd)/${snapshot}'"
+          || fail "Failed to delete snapshot:  '$(pwd)/${snapshot}'"
+        inform "Deleted snapshot:  '$(pwd)/${snapshot}'"
+      else
+        warn "Target count exceeded (${target_count}) but deletion candidate (${snapshot}) is not older than target for oldest snapshot (${oldest_snapshot}).  Skipping."
       fi
     done
+  else
+    warn "Not more than target count of ${adjective} snapshots found.  ({{ '${#snapshots[@]}' }} < ${target_count})"
   fi
-  if test "$(ls ????-?? | wc -l)" -gt "${max_months}"; then
-    for snapshot in ????-??; do
-      numeric="$(sed -E 's/[^0-9]//g' <<< "${snapshot}")"
-      if test "${numeric}" -lt "${min_month}"; then
-        btrfs subvolume delete "${snapshot}" \
-          || fail "Failed to delete monthly snapshot:  '$(pwd)/${snapshot}'"
-      fi
-    done
-  fi
-  if test "$(ls ????-??-?? | wc -l)" -gt "${max_days}"; then
-    for snapshot in ????-??-??; do
-      numeric="$(sed -E 's/[^0-9]//g' <<< "${snapshot}")"
-      if test "${numeric}" -lt "${min_day}"; then
-        btrfs subvolume delete "${snapshot}" \
-          || fail "Failed to delete daily snapshot:  '$(pwd)/${snapshot}'"
-      fi
-    done
-  fi
-  if test "$(ls ????-??-??T?? | wc -l)"; then
-    for snapshot in ????-??-??T??; do
-      numeric="$(sed -E 's/[^0-9]//g' <<< "${snapshot}")"
-      if test "${numeric}" -lt "${min_hour}"; then
-        btrfs subvolume delete "${snapshot}" \
-          || fail "Failed to delete hourly snapshot:  '$(pwd)/${snapshot}'"
-      fi
-    done
-  fi
+}
+
+
+function numeric() {
+  sed 's/[^0-9]//g' <<< "${@}"
+}
+
+
+function inform() {
+  printf 'INFO:     %s\n' "${1}"
+}
+
+
+function warn() {
+  printf 'WARNING:  %s\n' "${1}" >&2
 }
 
 
 function fail() {
-  printf '%s\n' "${1}"
+  printf 'ERROR:    %s\n' "${1}" >&2
   exit "${2:-1}"
 }
-
-
-# These variables are set in host_vars.
-volume="{{ backup_prefix }}"
-snapshots="${volume}/snapshots"
-
-max_years="{{ snapshot_yearlies }}"
-max_months="{{ snapshot_monthlies }}"
-max_days="{{ snapshot_dailies }}"
-max_hours="{{ snapshot_hourlies }}"
 
 # Get the current time.
 year="$(date '+%Y')"
 month="$(date '+%m')"
 day="$(date '+%d')"
 hour="$(date '+%H')"
-
-# Skip punctuation for numeric comparison.
-# Compensate for leap years.
-min_year="$(date -d "${year} -$(( max_years - 1 ))years" '+%Y')"
-# Compensate for varying month lengths.
-min_month="$(date -d "${year}-${month}-01 -$(( max_months - 1 ))months" '+%Y%m')"
-# Do not account for DST begin and end.
-min_day="$(date -d "-$(( max_days - 1 ))days" '+%Y%m%d')"
-min_hour="$(date -d "-$(( max_hours - 1 ))hours" '+%Y%m%d%H')"
 
 main "${@}"

@@ -1,2 +1,2 @@
 # m     h       dom     mon     dow     user    command
-00      *       *       *       *       root    /usr/local/bin/manage_snapshots
+00      *       *       *       *       root    /usr/local/bin/manage_snapshots_cronjob
