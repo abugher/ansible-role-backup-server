@@ -2,9 +2,9 @@
 
 {
   echo -n "Start:  "
-  date --iso-8601=minute
+  date --iso-8601=second
   /usr/local/bin/manage_snapshots
   echo -n "End:    "
-  date --iso-8601=minute
+  date --iso-8601=second
 } 2>&1 \
   | logger -t manage_snapshots

@@ -70,7 +70,7 @@ function prune() {
   if test "{{ '${#snapshots[@]}' }}" -gt "${target_count}"; then
     # Keep at least $target_count snapshots.
     # (Don't delete all if all are old, even if there are more than $target_count.)
-    for i in $(seq "${target_count}" "$(( "{{ '${#snapshots[@]}' }}" - 1 ))"); do
+    for i in $(seq 0 "$(( "{{ '${#snapshots[@]}' }}" - 1 - target_count  ))"); do
       snapshot="${snapshots[i]}"
       snapshot_numeric="$(numeric "${snapshot}")"
       # Keep any snapshots younger than $oldest.
