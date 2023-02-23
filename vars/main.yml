@@ -22,3 +22,4 @@ template_files:
     mode:                       '0755'
     src:                        'templates/bin/manage_snapshots.j2'
     dest:                       '/usr/local/bin/manage_snapshots'
+  - 'encrypted_storage'
