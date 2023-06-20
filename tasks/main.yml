@@ -1,4 +1,5 @@
 ---
+- include:              '../tasks/dependencies.yml'
 - include:              '../tasks/create_files.yml'
 - include:              '../tasks/install_files.yml'
 - include:              '../tasks/template_files.yml'
@@ -8,6 +9,6 @@
 - include:              'register_client_host.yml'
   vars:
     backup_client_host: "{{ backup_client_host_loop_var }}"
-  with_items:           "{{ groups['backup_client']}}"
+  with_items:           "{{ groups['backup-client']}}"
   loop_control:
     loop_var:           backup_client_host_loop_var
