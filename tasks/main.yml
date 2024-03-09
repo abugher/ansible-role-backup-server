@@ -1,12 +1,12 @@
 ---
-- include:              '../tasks/dependencies.yml'
-- include:              '../tasks/create_files.yml'
-- include:              '../tasks/install_files.yml'
-- include:              '../tasks/template_files.yml'
+- include_tasks:        '../tasks/dependencies.yml'
+- include_tasks:        '../tasks/create_files.yml'
+- include_tasks:        '../tasks/install_files.yml'
+- include_tasks:        '../tasks/template_files.yml'
 # "backup_client_host_loop_var" is used instead of just "backup_client_host" to
 # avoid a warning:
 #  [WARNING]: The loop variable 'backup_client_host' is already in use. 
-- include:              'register_client_host.yml'
+- include_tasks:        'register_client_host.yml'
   vars:
     backup_client_host: "{{ backup_client_host_loop_var }}"
   with_items:           "{{ groups['backup-client']}}"

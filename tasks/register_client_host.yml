@@ -1,19 +1,19 @@
 ---
-- include:              '../tasks/user_groups.yml'
+- include_tasks:        '../tasks/user_groups.yml'
   vars:
     user_groups:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include:              '../tasks/users.yml'
+- include_tasks:        '../tasks/users.yml'
   vars:
     users:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include:              '../tasks/authorized_keys.yml'
+- include_tasks:        '../tasks/authorized_keys.yml'
   vars:
     authorized_keys:
       - user:             "{{ backup_client_user }}-at-{{ backup_client_host }}"
@@ -21,14 +21,14 @@
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include:              '../tasks/allow_users.yml'
+- include_tasks:        '../tasks/allow_users.yml'
   vars:
     allow_users:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include:              '../tasks/create_files.yml'
+- include_tasks:        '../tasks/create_files.yml'
   vars:
     create_files:
       - owner:                      'root'
@@ -36,7 +36,7 @@
         mode:                       '0751'
         state:                      'directory'
         path:                       "{{ backup_prefix }}/{{ backup_client_host }}"
-- include:              '../tasks/create_files.yml'
+- include_tasks:        '../tasks/create_files.yml'
   vars:
     create_files:
       - owner:                      "{{ backup_client_user }}-at-{{ backup_client_host }}"
