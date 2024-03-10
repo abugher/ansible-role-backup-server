@@ -1,5 +1,4 @@
 ---
-- include_tasks:        '../tasks/dependencies.yml'
 - include_tasks:        '../tasks/create_files.yml'
 - include_tasks:        '../tasks/install_files.yml'
 - include_tasks:        '../tasks/template_files.yml'

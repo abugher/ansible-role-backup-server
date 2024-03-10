@@ -1,0 +1,5 @@
+---
+dependencies:
+  - role:     'encrypted-storage'
+    tags:     
+      - 'dependency'

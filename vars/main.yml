@@ -1,6 +1,4 @@
 ---
-dependencies:
-  - 'encrypted-storage'
 create_files:
   - owner:                      'root'
     group:                      'root'
