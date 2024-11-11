@@ -86,7 +86,7 @@ function prune() {
       fi
     done
   else
-    inform "Not more than target count of ${adjective} snapshots found.  ({{ '${#snapshots[@]}' }} < ${target_count})"
+    inform "Not more than target count of ${adjective} snapshots found.  ({{ '${#snapshots[@]}' }} <= ${target_count})"
   fi
 }
 
