@@ -8,10 +8,6 @@ If the OS on the backup server gets redeployed, but the old storage volume remai
 
 That action might be a good addition to this role if change status can be reported.
 
-## repetition
-
-Currently, a snapshot is taken if there is not one for this year, then one for this month, then this day, then this hour.  That can mean up to four different snapshots from almost the same time.  That probably doesn't take much extra space, but it is technically inefficient.  It seems better to make only one snapshot and then clone it to the other names.
-
 ## locking or timing
 
 Currently, snapshots and backups do not lock one another out.  It would be ideal if snapshots were taken between backups.  Locking would introduce more potential to break either the backup process or the snapshot process.  For now, try to stagger the timing so that backups are at least likely to be finished when snapshots happen.

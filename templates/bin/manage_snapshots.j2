@@ -16,12 +16,14 @@ function main() {
 
 
 function create_snapshots() {
+  snapshot_from="${volume}"
   for time in "${year}"{,-"${month}"{,-"${day}"{,T"${hour}"}}}; do
     if test -d "${time}"; then
       inform "Snapshot already exists:  '$(pwd)/${time}'"
     else
-      btrfs subvolume snapshot -r "${volume}" "${time}" \
+      btrfs subvolume snapshot -r "${snapshot_from}" "${time}" \
         || fail "Failed to create snapshot:  '$(pwd)/${time}'"
+      snapshot_from="${time}"
       inform "Created snapshot:  '$(pwd)/${time}'"
     fi
   done
