@@ -11,3 +11,5 @@
   with_items:           "{{ groups['backup-client']}}"
   loop_control:
     loop_var:           backup_client_host_loop_var
+- include_tasks:        '../tasks/scripts.yml'
+  when:                 install_files_result.changed
