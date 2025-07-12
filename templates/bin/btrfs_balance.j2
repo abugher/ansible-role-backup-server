@@ -1,0 +1,4 @@
+#!/bin/bash
+
+btrfs balance start --full-balance '{{backup_prefix}}' > /var/log/btrfs_balance.log 2>&1; ret="${?}"
+echo "${ret}" > /var/log/btrfs_balance.ret
