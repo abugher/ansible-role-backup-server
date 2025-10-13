@@ -1,4 +1,6 @@
 ---
+- debug:
+    msg:                "Registering client host:  {{backup_client_host}}"
 - include_tasks:        '../tasks/user_groups.yml'
   vars:
     user_groups:
