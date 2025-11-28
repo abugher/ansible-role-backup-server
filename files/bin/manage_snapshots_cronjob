@@ -3,7 +3,7 @@
 {
   echo -n "Start:  "
   date --iso-8601=second
-  /usr/local/bin/manage_snapshots
+  /usr/local/bin/manage_snapshots > /var/log/manage_snapshots.log
   echo -n "End:    "
   date --iso-8601=second
 } 2>&1 \
