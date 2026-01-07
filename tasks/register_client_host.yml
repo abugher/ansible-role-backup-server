@@ -18,8 +18,8 @@
 - include_tasks:        '../tasks/authorized_keys.yml'
   vars:
     authorized_keys:
-      - user:             "{{ backup_client_user }}-at-{{ backup_client_host }}"
-        keyfile:          "{{ role_path }}/../../inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
+      - user:           "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        keyfile:        "{{ role_path }}/../../inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
@@ -33,19 +33,31 @@
 - include_tasks:        '../tasks/create_files.yml'
   vars:
     create_files:
-      - owner:                      'root'
-        group:                      'root'
-        mode:                       '0751'
-        state:                      'directory'
-        path:                       "{{ backup_prefix }}/{{ backup_client_host }}"
+      - owner:          'root'
+        group:          'root'
+        mode:           '0751'
+        state:          'directory'
+        path:           "{{ backup_prefix }}/{{ backup_client_host }}"
 - include_tasks:        '../tasks/create_files.yml'
   vars:
     create_files:
-      - owner:                      "{{ backup_client_user }}-at-{{ backup_client_host }}"
-        group:                      "{{ backup_client_user }}-at-{{ backup_client_host }}"
-        mode:                       '0750'
-        state:                      'directory'
-        path:                       "{{ backup_prefix }}/{{ backup_client_host }}/{{ backup_client_user }}"
+      - owner:          "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        group:          "{{ backup_client_user }}-at-{{ backup_client_host }}"
+        mode:           '0750'
+        state:          'directory'
+        path:           "{{ backup_prefix }}/{{ backup_client_host }}/{{ backup_client_user }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
+- name:                 'adjust ownership but not permissions'
+  file:
+      owner:            "{{ backup_client_user }}-at-{{ backup_client_host }}"
+      group:            "{{ backup_client_user }}-at-{{ backup_client_host }}"
+      state:            'directory'
+      path:             "{{ backup_prefix }}/{{ backup_client_host }}/{{ backup_client_user }}"
+      recurse:          True
+      follow:           False
+  with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
+  loop_control:
+    loop_var:           backup_client_user
+
