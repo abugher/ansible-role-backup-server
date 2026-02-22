@@ -1,36 +1,36 @@
 ---
 - debug:
     msg:                "Registering client host:  {{backup_client_host}}"
-- include_tasks:        '../tasks/user_groups.yml'
+- include_tasks:        'tasks/common/user_groups.yml'
   vars:
     user_groups:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include_tasks:        '../tasks/users.yml'
+- include_tasks:        'tasks/common/users.yml'
   vars:
     users:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include_tasks:        '../tasks/authorized_keys.yml'
+- include_tasks:        'tasks/common/authorized_keys.yml'
   vars:
     authorized_keys:
       - user:           "{{ backup_client_user }}-at-{{ backup_client_host }}"
-        keyfile:        "{{ role_path }}/../../inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
+        keyfile:        "inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include_tasks:        '../tasks/allow_users.yml'
+- include_tasks:        'tasks/common/allow_users.yml'
   vars:
     allow_users:
       - "{{ backup_client_user }}-at-{{ backup_client_host }}"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
-- include_tasks:        '../tasks/create_files.yml'
+- include_tasks:        'tasks/common/create_files.yml'
   vars:
     create_files:
       - owner:          'root'
@@ -38,7 +38,7 @@
         mode:           '0751'
         state:          'directory'
         path:           "{{ backup_prefix }}/{{ backup_client_host }}"
-- include_tasks:        '../tasks/create_files.yml'
+- include_tasks:        'tasks/common/create_files.yml'
   vars:
     create_files:
       - owner:          "{{ backup_client_user }}-at-{{ backup_client_host }}"
