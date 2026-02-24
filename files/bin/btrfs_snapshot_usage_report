@@ -1,7 +1,9 @@
 #!/bin/bash
 
-btrfs filesystem du --si -s $(
-  for t in $(sudo ls /backup/snapshots/); do 
-    echo /backup/snapshots/"${t}"
-  done
-) | tee /tmp/snapshot_usage_report.txt
+shopt -s nullglob
+
+mountpoint='/backup'
+report_file='/tmp/snapshot_usage_report.txt'
+
+btrfs filesystem du --si -s "${mountpoint}/snapshots/"* \
+  | tee "${report_file}"
