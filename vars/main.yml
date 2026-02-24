@@ -16,6 +16,11 @@ install_files:
     mode:                       '0755'
     src:                        'files/bin/manage_snapshots_cronjob'
     dest:                       '/usr/local/bin/manage_snapshots_cronjob'
+  - owner:                      'root'
+    group:                      'root'
+    mode:                       '0755'
+    src:                        'files/bin/btrfs_snapshot_usage_report'
+    dest:                       '/usr/local/bin/btrfs_snapshot_usage_report'
 template_files:
   - owner:                      'root'
     group:                      'root'
