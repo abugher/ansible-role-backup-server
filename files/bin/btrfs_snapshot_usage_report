@@ -1,0 +1,7 @@
+#!/bin/bash
+
+btrfs filesystem du --si -s $(
+  for t in $(sudo ls /backup/snapshots/); do 
+    echo /backup/snapshots/"${t}"
+  done
+) | tee /tmp/snapshot_usage_report.txt
