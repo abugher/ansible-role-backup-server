@@ -19,7 +19,7 @@
   vars:
     authorized_keys:
       - user:           "{{ backup_client_user }}-at-{{ backup_client_host }}"
-        keyfile:        "inventory/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
+        keyfile:        "{{ inventory_path }}/hosts/{{ backup_client_host }}/users/{{ backup_client_user }}/files/ssh_keys/id_rsa.pub"
   with_items:           "{{ hostvars[backup_client_host]['backup_client_users'] }}"
   loop_control:
     loop_var:           backup_client_user
