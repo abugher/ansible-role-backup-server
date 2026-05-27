@@ -16,4 +16,10 @@ This would be more of a concern if backups were already coordinated with write p
 
 ## btrfs
 
+Filesystem deployment and fstab configuration may not be managed at all, currently.  `mkfs.btrfs` options were not recorded.  This line is currently in use in `/etc/fstab`:
+
+    /dev/mapper/backup /backup btrfs noatime,noauto,nodev,nosuid,noexec,compress=zlib:9,skip_balance 0 0
+
 BTRFS management should probably be in a separate role and depended on by this role as well as the general file server role, if the general file server role ever gets updated to use BTRFS.
+
+When and whether to perform a `balance` operation is unclear, but it may be doing more harm than good.  Note `skip_balance` in the mount options.  See [this bug report](https://forum.armbian.com/topic/59928-bug-btrfs-hits-16t-page-cache-limit-on-1t-drive/).
