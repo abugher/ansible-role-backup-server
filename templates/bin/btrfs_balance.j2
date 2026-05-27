@@ -1,4 +1,11 @@
 #!/bin/bash
 
-btrfs balance start --full-balance '{{backup_prefix}}' > /var/log/btrfs_balance.log 2>&1; ret="${?}"
+# Skip metadata and/or system data to avoid this problem:
+# https://forum.armbian.com/topic/59928-bug-btrfs-hits-16t-page-cache-limit-on-1t-drive/
+
+# A limit of 85% vs 100% leads to run time of a few minutes vs a few hours.
+# That's probably better for SSD longevity.
+
+#btrfs balance start --full-balance '{{backup_prefix}}' > /var/log/btrfs_balance.log 2>&1; ret="${?}"
+btrfs balance start -dusage=85 '{{backup_prefix}}' > /var/log/btrfs_balance.log 2>&1; ret="${?}"
 echo "${ret}" > /var/log/btrfs_balance.ret
